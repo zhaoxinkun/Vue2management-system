@@ -16,7 +16,8 @@
         <el-form-item label="申请人" prop="applicant">
 
           <el-select v-model="ruleForm.applicant" placeholder="请选择申请人" class="select person">
-            <el-option :label="items.account"  :value="items.id" v-for="(items) in applyUseList " :key="items.id"></el-option>
+            <el-option :label="items.account" :value="items.id" v-for="(items) in applyUseList "
+                       :key="items.id"></el-option>
           </el-select>
 
         </el-form-item>
@@ -24,15 +25,16 @@
         <!-- 日期选择框 -->
         <el-form-item label="申请时间" required>
           <el-form-item prop="created">
-            <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.created" class="select time"></el-date-picker>
+            <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.created"
+                            class="select time"></el-date-picker>
           </el-form-item>
         </el-form-item>
 
         <!-- 下拉框 -->
         <el-form-item label="申请商品" prop="apply_goods">
           <el-select v-model="ruleForm.apply_goods" placeholder="请选择申请商品" class="select goods">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+            <el-option label="电脑" value="电脑"></el-option>
+            <el-option label="手机" value="手机"></el-option>
           </el-select>
         </el-form-item>
 
@@ -50,6 +52,7 @@
           <el-button type="primary" @click="submitForm('ruleForm')">立即申请</el-button>
           <el-button @click="resetForm('ruleForm')">重置</el-button>
         </el-form-item>
+
       </el-form>
 
 
@@ -59,13 +62,15 @@
 
 
 <script>
-import {userEmployee,officeCreate} from "@/api/api";
+import {userEmployee, officeCreate} from "@/api/api";
+import {Message} from "element-ui";
+
 export default {
   name: 'officeApply',
 
   data() {
     return {
-      applyUseList:[],
+      applyUseList: [],
       ruleForm: {
         applicant: "", //申请人
         apply_goods: "", //申请商品
@@ -76,69 +81,76 @@ export default {
       rules: {
         // 申请人
         applicant: [
-          { required: true, message: '请选择申请人', trigger: 'change' }
+          {required: true, message: '请选择申请人', trigger: 'change'}
         ],
         // 申请日期校验
         created: [
-          { type: 'date', required: true, message: '请选择申请日期', trigger: 'change' }
+          {type: 'date', required: true, message: '请选择申请日期', trigger: 'change'}
         ],
         // 申请商品校验
         apply_goods: [
-          { required: true, message: '请选择申请商品', trigger: 'change' }
+          {required: true, message: '请选择申请商品', trigger: 'change'}
         ],
         // 申请商品数量
         apply_goods_num: [
-          {  required: true, message: '请至少一个', trigger: 'blur' }
+          {required: true, message: '请至少一个', trigger: 'blur'}
         ],
         apply_reason: [
-          { required: true, message: '请填写申请原因', trigger: 'change' }
+          {required: true, message: '请填写申请原因', trigger: 'change'}
         ]
       }
     };
   },
 
   mounted() {
-    this.getAllEmplyee();
+    this.getAllEmployee();
   },
 
   methods: {
     // 请求所有的员工,作为申请人列表
-  getAllEmplyee(){
-    userEmployee().then(resolve=>{
-      // console.log("这里是全部员工的数据@",resolve)
-      let {code ,data} =resolve.data;
-      if (code ===20000){
-        this.applyUseList=data;
-        console.log("这里是所有员工的数据@",this.applyUseList)
-      }
-    })
-  },
-  // 提交from表单数据
-  submitForm(formName) {
-    this.$refs[formName].validate((valid) => {
-      if (valid) {
-        officeCreate(this.ruleForm).then(resolve=>{
-          let{code,data,msg} = resolve.data;
-         if(code === 20000){
-           alert(msg)
-           console.log("返回的校验code",code)
-           console.log("返回的数据",data);
-               this.$router.push("/approvalManage/officeManage")
-         }else {
-           alert("error" || msg)
-         }
+    getAllEmployee() {
+      userEmployee().then(resolve => {
+        // console.log("这里是全部员工的数据@",resolve)
+        let {code, data} = resolve.data;
+        if (code === 20000) {
+          this.applyUseList = data;
+          console.log("这里是所有员工的数据@", this.applyUseList)
+        }
+      })
+    },
+    // 提交from表单数据
+    submitForm(formName) {
+      // 拿到节点元素数据,进行校验
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          // 发送数据,接收返回值
+          officeCreate(this.ruleForm).then(resolve => {
+            let {code, data, msg} = resolve.data;
+            if (code === 20000) {
+              console.log("返回的校验code", code)
+              console.log("返回的数据", data);
+              Message({
+                message: msg,
+                type: 'success'
+              });
+              this.$router.push("/approvalManage/officeManage")
+            } else {
+              Message({
+                message: msg,
+                type: 'error'
+              });
+            }
 
-        })
-        alert('submit success!');
-      } else {
-        console.log('error submit!!');
-        return false;
-      }
-    });
-  },
-  resetForm(formName) {
-    this.$refs[formName].resetFields();
-  }
+          })
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
+    }
 
   },
 };

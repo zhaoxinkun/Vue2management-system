@@ -12,6 +12,8 @@ import "element-ui/lib/theme-chalk/index.css";
 // 使用组件库
 Vue.use(ElementUI);
 
+// 使用全局过滤器
+import "./filters/idnex"
 
 Vue.config.productionTip = false;
 

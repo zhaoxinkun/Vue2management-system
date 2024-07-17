@@ -177,19 +177,21 @@ div:focus {
 //main-container全局样式
 // main中心
 .el-main {
-  background-color: palevioletred;
+  //background-color: palevioletred;
 
   // 申请类别的卡片
   .box-card {
-    background-color: skyblue;
+    //background-color: skyblue;
+    box-shadow: yellow;
+
 
     // 办公类别中的表单
     .demo-ruleForm {
-      background-color: greenyellow;
+      //background-color: greenyellow;
 
       //办公类别中的所有下拉区域
       .select {
-        background-color: black;
+        //background-color: black;
         width: 100%;
       }
     }
@@ -197,7 +199,8 @@ div:focus {
 
   // 审批管理
   .applyManage {
-    border-radius: 20px;
+    //border-radius: 20px;
+
 
     .table-column {
       background-color: red;
