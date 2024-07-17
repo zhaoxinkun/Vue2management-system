@@ -92,17 +92,20 @@
     <!--      jumper:跳页元素-->
     <!--      page-size:每页显示的数量-->
     <!--      current-page:当前页数-->
-    <PaginationMain
-        :total="rows"
-        :pageSize.sync="listQuery.pageSize"
-        :pageNo.sync="listQuery.pageNo"
-        @change="getApplyGoodsList"></PaginationMain>
+    <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="listQuery.pageNo"
+        :page-sizes="[10, 20, 30, 40]"
+        :page-size="listQuery.pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="rows">
+    </el-pagination>
   </div>
 
 </template>
 
 <script>
-import PaginationMain from "@/components/global/my-pagination/Pagination-Main.vue";
 import {getofficeManageList} from "@/api/api";
 
 export default {
@@ -121,9 +124,6 @@ export default {
       // 定义一个总条数
       rows: 1,
     }
-  },
-  components: {
-    PaginationMain
   },
   // 局部过滤器写法
   // filters: {
@@ -201,11 +201,8 @@ export default {
           // 这里是拿到所有的数据
           this.tableData = data.list;
           console.log("表格数据", this.tableData);
-          // / 按照 id 进行升序排序
-          this.tableData.sort((a, b) => a.id - b.id);
           // 拿到数据的总条数
           this.rows = data.rows;
-
         } else {
           alert("error" || msg)
         }
@@ -215,6 +212,21 @@ export default {
     },
     handleDelete() {
     },
+    // 这个可以拿到每页多少条
+    // 设定默认值
+    handleSizeChange(val = this.listQuery.pageSize) {
+      console.log(`每页 ${val} 条`);
+      // 修改上方查询对象中的数据
+      this.listQuery.pageSize = val;
+      // 拿着修改过的对象,重新发送请求
+      this.getApplyGoodsList()
+    },
+    // 这个可以拿到当前处于第几页
+    handleCurrentChange(val = this.listQuery.pageNo) {
+      console.log(`当前页: ${val}`);
+      this.listQuery.pageNo = val;
+      this.getApplyGoodsList()
+    }
   },
 };
 </script>
