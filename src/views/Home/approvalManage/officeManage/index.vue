@@ -13,23 +13,29 @@
     <el-table
         :data="tableData"
         stripe
-        class="applyManage table">
+        class="applyManage table"
+        width="100%">
 
-      <el-table-column class="table-column" width="150px"
-                       prop="id"
-                       label="序号"
+      <el-table-column
+          class="table-column"
+          width="150px"
+          type="index"
+          label="序号"
+          fixed="left"
       >
       </el-table-column>
 
       <el-table-column
           prop="account"
           label="申请人"
+          fixed="left"
       >
       </el-table-column>
 
       <el-table-column
           prop="created"
-          label="申请时间">
+          label="申请时间"
+          sortable>
         <template slot-scope="scope">
           <span>
             {{ scope.row.created | getTimes }}
@@ -54,9 +60,12 @@
           label="申请原因">
       </el-table-column>
 
+      <!--      创建筛选-->
       <el-table-column
           prop="status"
-          label="申请状态">
+          label="申请状态"
+          :filters="filterStatusData"
+          :filter-method="filterHandler">
         >
         <el-tag slot-scope="scope" :type="scope.row.status | getStatusStyle">
           <span>{{ scope.row.status | getStatus }}</span>
@@ -96,7 +105,8 @@
         :total="rows"
         :pageSize.sync="listQuery.pageSize"
         :pageNo.sync="listQuery.pageNo"
-        @change="getApplyGoodsList"></PaginationMain>
+        @change="getApplyGoodsList">
+    </PaginationMain>
   </div>
 
 </template>
@@ -120,7 +130,10 @@ export default {
       },
       // 定义一个总条数
       rows: 1,
+      // 筛选出来的,符合ui格式的数据
+      filterStatusData:[]
     }
+
   },
   components: {
     PaginationMain
@@ -201,10 +214,11 @@ export default {
           // 这里是拿到所有的数据
           this.tableData = data.list;
           console.log("表格数据", this.tableData);
-          // / 按照 id 进行升序排序
-          this.tableData.sort((a, b) => a.id - b.id);
           // 拿到数据的总条数
           this.rows = data.rows;
+
+          // 筛选功能中的,对于拿到的数据的状态的过滤,用过滤方法过滤数据
+          this.filterStatus(this.tableData)
 
         } else {
           alert("error" || msg)
@@ -215,6 +229,36 @@ export default {
     },
     handleDelete() {
     },
+    filterStatus(arr) {
+      // 创建map
+      let map = new Map;
+      // 循环拿进来的数据数组
+      for (let item of arr) {
+        let v ={...item}
+        // 判断里边有咩有
+        if (!map.has(v.status)) {
+          // 但是后端返回的数据中状态是数组,我们要使用过滤器进行过滤
+          v.status2=this.$options.filters["getStatus"](v.status)
+          // 没有就添加
+          map.set(v.status, v)
+        }
+        // 类型转换
+        let map2 = [...map.values()];
+        // console.log(map2)
+        // 拿到的数据有很多冗余,需要重新按照element ui上的筛选格式
+        this.filterStatusData = map2.map(item => (
+            {
+              text: item.status2,
+              value: item.status
+            }
+        ))
+      }
+    },
+    // 筛选
+    filterHandler(value, row, column) {
+      const property = column['property'];
+      return row[property] === value;
+    }
   },
 };
 </script>

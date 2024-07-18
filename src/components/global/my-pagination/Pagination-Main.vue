@@ -54,7 +54,7 @@ export default {
   computed: {
     // 父组件数据本地化
 
-    // 页码
+    // 当前页码
     currPage: {
       get() {
         // 返回的其实还是父组件中的page
